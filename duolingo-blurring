@@ -1,0 +1,31 @@
+// ==UserScript==
+// @name         Duolingo Blurring Effect
+// @description  Adds a blur effect to the original sentence in Duolingo exercises.
+// @match        *://www.duolingo.com/*
+// @version      2024-10-30
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=duolingo.com
+// @grant        GM_addStyle
+// ==/UserScript==
+
+GM_addStyle('.blurred-text { filter: blur(4px); transition: all 0.2s ease-in-out; } .blurred-text:hover { filter: blur(0px); }');
+
+setInterval(() => {
+  // Select the button containing the animated speaker icon
+  const speakerButton = document.querySelector('button span[style*="animated-speaker-icon-color"]')?.closest('button');
+
+  if (speakerButton) {
+    // Get the outer container div with `dir="ltr"`
+    const container = speakerButton.closest('div[dir="ltr"]');
+
+    if (container) {
+      // Select all span children of the container except the first one
+      const spansToBlur = Array.from(container.querySelectorAll(":scope > span:nth-child(n+2)"));
+
+      spansToBlur.forEach(span => {
+        if (!span.classList.contains('blurred-text')) {
+          span.classList.add('blurred-text');
+        }
+      });
+    }
+  }
+}, 100);
