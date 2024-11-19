@@ -1,0 +1,45 @@
+// ==UserScript==
+// @name         Redirect Wikipedia to Spanish or Translate
+// @namespace    http://tampermonkey.net/
+// @version      1.5
+// @description  Redirects Wikipedia pages to the Spanish version if available; otherwise, uses Google Translate
+// @match        *://*.wikipedia.org/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=wikipedia.com
+// @exclude      *://es.wikipedia.org/*
+// @grant        GM_xmlhttpRequest
+// @connect      es.wikipedia.org
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Check if we're already on the Spanish domain
+    if (location.hostname !== 'es.wikipedia.org') {
+        // Construct the URL for the Spanish version of the page
+        const spanishUrl = location.href.replace(location.hostname, 'es.wikipedia.org');
+
+        // Use GM_xmlhttpRequest to check if the Spanish page exists
+        GM_xmlhttpRequest({
+            method: 'HEAD',
+            url: spanishUrl,
+            onload: function(response) {
+                console.log(`Checking Spanish URL: ${spanishUrl}`);
+                console.log(`Response status: ${response.status}`);
+
+                if (response.status === 200) {
+                    // Spanish page exists; redirect to it
+                    console.log('Spanish page found, redirecting...');
+                    window.location.replace(spanishUrl);
+                } else {
+                    // Spanish page doesn't exist; redirect to Google Translate
+                    console.log('Spanish page does not exist, redirecting to Google Translate...');
+                    const googleTranslateUrl = `https://translate.google.com/translate?sl=auto&tl=es&u=${encodeURIComponent(location.href)}`;
+                    window.location.replace(googleTranslateUrl);
+                }
+            },
+            onerror: function(error) {
+                console.error('Error checking Spanish Wikipedia page:', error);
+            }
+        });
+    }
+})();
